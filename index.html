@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>育児あるあるガチャ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+  :root {
+    --cream: #FFF8EF;
+    --warm-yellow: #FFD97D;
+    --soft-pink: #FFB3C6;
+    --mint: #C3F0CA;
+    --lavender: #D4B8E0;
+    --coral: #FF8B74;
+    --text-dark: #3D2C2C;
+    --text-mid: #6B4E4E;
+    --card-bg: #FFFDF9;
+    --r-blue: #6BAED6;
+    --r-blue-light: #D6EEFF;
+    --ssr-gold: #D4A017;
+    --ssr-gold2: #FFB800;
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+font-family: ‘Zen Maru Gothic’, sans-serif;
+background-color: var(–cream);
+min-height: 100dvh;
+display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+padding: 20px 20px 36px;
+overflow-x: hidden; position: relative;
+}
+
+body::before {
+content: ‘’; position: fixed; top: -80px; right: -60px;
+width: 260px; height: 260px;
+background: var(–soft-pink); border-radius: 50%;
+opacity: 0.2; pointer-events: none;
+}
+body::after {
+content: ‘’; position: fixed; bottom: -60px; left: -50px;
+width: 220px; height: 220px;
+background: var(–mint); border-radius: 50%;
+opacity: 0.25; pointer-events: none;
+}
+
+.container {
+width: 100%; max-width: 420px;
+display: flex; flex-direction: column;
+align-items: center; gap: 18px;
+position: relative; z-index: 1;
+}
+
+/* タイトル */
+.title-area { text-align: center; }
+.title-emoji {
+font-size: 2.4rem; line-height: 1; display: block;
+margin-bottom: 4px; animation: float 3s ease-in-out infinite;
+}
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+.title {
+font-size: 1.5rem; font-weight: 900;
+color: var(–text-dark); letter-spacing: 0.05em; display: inline-block;
+}
+.title-underline {
+display: block; height: 7px; background: var(–warm-yellow);
+border-radius: 4px; margin-top: 3px; transform: rotate(-1deg);
+}
+.subtitle { font-size: 0.78rem; color: var(–text-mid); margin-top: 6px; opacity: 0.8; }
+
+/* コレクションバー */
+.collection-bar {
+width: 100%; background: var(–card-bg);
+border: 2.5px solid var(–text-dark); border-radius: 16px;
+box-shadow: 3px 3px 0 var(–text-dark); padding: 10px 16px;
+}
+.coll-top {
+display: flex; align-items: center;
+justify-content: space-between; margin-bottom: 8px;
+}
+.coll-left { display: flex; align-items: center; gap: 7px; }
+.coll-icon { font-size: 1.05rem; }
+.coll-label { font-size: 0.75rem; font-weight: 700; color: var(–text-mid); }
+.coll-count { font-size: 1.1rem; font-weight: 900; color: var(–text-dark); }
+.coll-count .got { color: var(–coral); }
+.coll-remain {
+font-size: 0.72rem; font-weight: 700; color: var(–text-mid);
+background: var(–lavender); border: 2px solid var(–text-dark);
+border-radius: 12px; padding: 3px 10px; white-space: nowrap;
+}
+.progress-wrap {
+width: 100%; height: 8px; background: #EEE5D9;
+border-radius: 4px; overflow: hidden; border: 1.5px solid var(–text-dark);
+}
+.progress-bar {
+height: 100%;
+background: linear-gradient(90deg, var(–coral), var(–warm-yellow));
+border-radius: 4px; transition: width 0.5s cubic-bezier(0.34,1.2,0.64,1);
+}
+
+/* 結果カード */
+.result-area {
+width: 100%; min-height: 200px; background: var(–card-bg);
+border-radius: 24px; border: 3px solid var(–text-dark);
+box-shadow: 5px 5px 0 var(–text-dark);
+display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+padding: 32px 24px 24px; position: relative;
+transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.corner { position: absolute; font-size: 0.9rem; opacity: 0.5; pointer-events: none; }
+.corner-tl { top: 10px; left: 12px; color: var(–warm-yellow); }
+.corner-br { bottom: 10px; right: 12px; color: var(–soft-pink); }
+
+/* レアリティバッジ */
+.rarity-badge {
+position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+font-size: 0.7rem; font-weight: 900; padding: 4px 16px;
+border-radius: 20px; border: 2px solid var(–text-dark);
+letter-spacing: 0.08em; white-space: nowrap;
+opacity: 0; transition: opacity .25s .1s; pointer-events: none;
+}
+.rarity-badge.visible { opacity: 1; }
+.rarity-badge.badge-n   { background: #E8E0D5; color: var(–text-dark); }
+.rarity-badge.badge-r   { background: var(–r-blue); color: white; }
+.rarity-badge.badge-ssr {
+background: linear-gradient(90deg, #FFB800, #FF6B00, #FFB800);
+background-size: 200%; animation: shimmer 1.5s linear infinite; color: white;
+}
+@keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
+
+/* NEWバッジ */
+.new-badge {
+position: absolute; top: -12px; right: 16px;
+background: #FF3B6F; color: white;
+font-size: 0.65rem; font-weight: 900;
+padding: 3px 10px; border-radius: 10px; border: 2px solid var(–text-dark);
+letter-spacing: 0.1em; opacity: 0;
+transform: scale(0.7) rotate(3deg);
+transition: opacity .2s .15s, transform .3s .15s cubic-bezier(0.34,1.56,0.64,1);
+pointer-events: none;
+}
+.new-badge.visible { opacity: 1; transform: scale(1) rotate(3deg); }
+
+.result-emoji { font-size: 2.8rem; margin-bottom: 12px; display: block; }
+
+.result-text {
+font-size: 1.45rem; font-weight: 700; color: var(–text-dark);
+text-align: center; line-height: 1.6; letter-spacing: 0.03em;
+}
+.result-text.ssr-text {
+font-size: 1.5rem; font-weight: 900;
+background: linear-gradient(135deg,#B8860B,#FFD700,#B8860B);
+-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.result-placeholder {
+font-size: 0.95rem; color: var(–text-mid); opacity: 0.45;
+text-align: center; line-height: 1.8;
+}
+
+.result-tag {
+margin-top: 14px; font-size: 0.72rem; font-weight: 700;
+padding: 4px 14px; border-radius: 20px; border: 2px solid var(–text-dark);
+opacity: 0; transition: opacity .3s .2s;
+}
+.result-tag.visible { opacity: 1; }
+.result-tag.tag-n   { background: var(–warm-yellow); color: var(–text-dark); }
+.result-tag.tag-r   { background: var(–r-blue-light); color: #2c5f82; border-color: var(–r-blue); }
+.result-tag.tag-ssr { background: linear-gradient(90deg,#FFD700,#FFA500); color: white; border-color: var(–ssr-gold); }
+
+/* レアリティ別カードスタイル */
+.result-area.card-r {
+border-color: var(–r-blue); box-shadow: 5px 5px 0 var(–r-blue);
+background: linear-gradient(145deg,#F0F8FF,var(–card-bg));
+}
+.result-area.card-ssr {
+border-color: var(–ssr-gold);
+box-shadow: 5px 5px 0 var(–ssr-gold), 0 0 0 2px #FFD700 inset;
+background: linear-gradient(145deg,#FFFDE8,#FFF5C0);
+}
+
+/* アニメーション */
+.anim-n   { animation: popN   .35s cubic-bezier(0.34,1.56,0.64,1); }
+.anim-r   { animation: popR   .4s  cubic-bezier(0.34,1.56,0.64,1); }
+.anim-ssr { animation: popSSR .5s  cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes popN   { 0%{transform:scale(.93);opacity:.6} 100%{transform:scale(1);opacity:1} }
+@keyframes popR   { 0%{transform:scale(.9) rotate(-1deg);opacity:.5} 70%{transform:scale(1.02)} 100%{transform:scale(1) rotate(0);opacity:1} }
+@keyframes popSSR { 0%{transform:scale(.87) rotate(-2deg);opacity:.4} 60%{transform:scale(1.05) rotate(1deg)} 100%{transform:scale(1) rotate(0);opacity:1} }
+
+/* デコドット */
+.deco-dots { display:flex; gap:6px; margin-top:-4px; }
+.deco-dots span {
+width:8px; height:8px; border-radius:50%; background:var(–warm-yellow);
+border:2px solid var(–text-dark); display:inline-block;
+}
+.deco-dots span:nth-child(2){background:var(–soft-pink);}
+.deco-dots span:nth-child(3){background:var(–mint);}
+
+/* ガチャボタン */
+.gacha-btn {
+width:100%; max-width:300px; padding:20px 0;
+background:#FF8B74 !important; color:white !important;
+font-family:‘Zen Maru Gothic’,sans-serif;
+font-size:1.5rem; font-weight:900; letter-spacing:0.08em;
+border:3px solid #3D2C2C !important; border-radius:100px;
+box-shadow:5px 5px 0 #3D2C2C; cursor:pointer;
+transition:transform .1s, box-shadow .1s;
+display:flex; align-items:center; justify-content:center; gap:10px;
+user-select:none; -webkit-user-select:none;
+opacity:1 !important; pointer-events:auto !important;
+-webkit-appearance:none; appearance:none;
+}
+.gacha-btn:active { transform:translate(3px,3px); box-shadow:2px 2px 0 #3D2C2C; }
+.btn-icon { font-size:1.4rem; }
+.gacha-btn.spinning .btn-icon { animation:spin .4s linear; }
+@keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+
+/* 下部エリア */
+.bottom-area {
+width:100%; display:flex; align-items:center;
+justify-content:center; gap:14px;
+}
+.count-area {
+display:flex; align-items:center; gap:6px;
+color:var(–text-mid); font-size:0.8rem; font-weight:700; opacity:.75;
+}
+.count-num {
+background:var(–lavender); border:2px solid var(–text-dark);
+border-radius:8px; padding:2px 10px;
+font-weight:900; color:var(–text-dark); font-size:0.9rem;
+}
+.count-num.bump { animation:bump .25s ease; }
+@keyframes bump { 0%{transform:scale(1)} 50%{transform:scale(1.35)} 100%{transform:scale(1)} }
+
+.reset-btn {
+background:none; border:2px solid var(–text-dark); border-radius:8px;
+font-family:‘Zen Maru Gothic’,sans-serif; font-size:0.68rem; font-weight:700;
+color:var(–text-mid); padding:3px 10px; cursor:pointer; opacity:0.55;
+transition:opacity .15s;
+}
+.reset-btn:active { opacity:1; }
+</style>
+
+</head>
+<body>
+<div class="container">
+
+  <!-- タイトル -->
+
+  <div class="title-area">
+    <span class="title-emoji">🍼</span>
+    <div class="title">育児あるあるガチャ<span class="title-underline"></span></div>
+    <p class="subtitle">わかる〜 が出てくるかも？</p>
+  </div>
+
+  <!-- コレクションバー -->
+
+  <div class="collection-bar">
+    <div class="coll-top">
+      <div class="coll-left">
+        <span class="coll-icon">📖</span>
+        <span class="coll-label">コレクション</span>
+        <span class="coll-count"><span class="got" id="collGot">0</span> / <span id="collTotal">0</span>種</span>
+      </div>
+      <span class="coll-remain" id="collRemain">あと―種</span>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- 結果カード -->
+
+  <div class="result-area" id="resultArea">
+    <span class="corner corner-tl">✦</span>
+    <span class="corner corner-br">✦</span>
+    <span class="rarity-badge" id="rarityBadge"></span>
+    <span class="new-badge" id="newBadge">NEW!</span>
+    <span class="result-emoji" id="resultEmoji">🎰</span>
+    <p class="result-text" id="resultText">
+      <span class="result-placeholder">ボタンを押して<br>ガチャを引こう！</span>
+    </p>
+    <span class="result-tag" id="resultTag"></span>
+  </div>
+
+  <div class="deco-dots"><span></span><span></span><span></span></div>
+
+  <!-- ガチャボタン -->
+
+  <button class="gacha-btn" id="gachaBtn">
+    <span class="btn-icon">🎲</span>引く！
+  </button>
+
+  <!-- カウンター＋リセット -->
+
+  <div class="bottom-area">
+    <div class="count-area">
+      <span>今日</span>
+      <span class="count-num" id="countNum">0</span>
+      <span>回</span>
+    </div>
+    <button class="reset-btn" id="resetBtn">コレクションをリセット</button>
+  </div>
+
+</div>
+<script>
+// ─── データ ───────────────────────────────────────
+const ITEMS = [
+  // N（通常）80%
+  { id:'n01', emoji:'💩', text:'出かける直前に\nうんこ',                rarity:'n', tag:'あるある度 MAX' },
+  { id:'n02', emoji:'😭', text:'抱っこ→降ろした\n瞬間泣く',            rarity:'n', tag:'わかりみ深すぎる' },
+  { id:'n03', emoji:'👁️', text:'寝たと思ったら\n復活',                  rarity:'n', tag:'これもう呪いでしょ' },
+  { id:'n04', emoji:'🤔', text:'なぜか\n今それ聞く？',                  rarity:'n', tag:'タイミング謎すぎ' },
+  { id:'n05', emoji:'🍩', text:'おやつは\n別腹すぎる',                  rarity:'n', tag:'ご飯は食べないのに' },
+  { id:'n06', emoji:'🙈', text:'急に静か＝\n何かやってる',              rarity:'n', tag:'絶対やってる' },
+  { id:'n07', emoji:'🏃', text:'風呂入る直前に\n逃走',                  rarity:'n', tag:'毎日の攻防戦' },
+  { id:'n08', emoji:'🌪️', text:'気に入らないと\n全部投げる',            rarity:'n', tag:'フルスイングで' },
+  { id:'n09', emoji:'📚', text:'同じ絵本を\n無限ループ要求',            rarity:'n', tag:'親の記憶力が試される' },
+  { id:'n10', emoji:'🥺', text:'今じゃないタイミング\nで甘える',        rarity:'n', tag:'でも可愛いから許す' },
+  { id:'n11', emoji:'🌙', text:'寝かしつけ中\n自分が先に落ちる',        rarity:'n', tag:'逆に寝かされてる' },
+  { id:'n12', emoji:'🍽️', text:'子どもの残飯を\n食べ続ける毎日',        rarity:'n', tag:'ご飯の記憶がない' },
+  { id:'n13', emoji:'📻', text:'Eテレの曲が\n頭から離れない',           rarity:'n', tag:'大人の方が覚えてる' },
+  { id:'n14', emoji:'🤧', text:'子どもが治ったら\n親がダウン',          rarity:'n', tag:'順番待ちしてた？' },
+  { id:'n15', emoji:'🎒', text:'出発5分前から\n準備が始まる',           rarity:'n', tag:'もっと早く言って' },
+  { id:'n16', emoji:'👂', text:'何回言っても\n聞いてない',              rarity:'n', tag:'耳ついてる？' },
+  { id:'n17', emoji:'🛒', text:'スーパーで必ず\n床に転がる',            rarity:'n', tag:'恥ずかしさの限界突破' },
+  { id:'n18', emoji:'🤱', text:'抱っこ紐に乗った\n瞬間に寝る',          rarity:'n', tag:'外では寝るのに' },
+  { id:'n19', emoji:'🌊', text:'お風呂の水\n全部かぶせてくる',          rarity:'n', tag:'ずぶ濡れ確定' },
+  { id:'n20', emoji:'🎵', text:'子守唄歌ったら\n逆に元気になった',       rarity:'n', tag:'効果が逆向き' },
+  { id:'n21', emoji:'🧍', text:'寝たと思って\n立った瞬間に起きる',       rarity:'n', tag:'センサー精度高すぎ' },
+  { id:'n22', emoji:'😤', text:'今それやる？って\nタイミングで泣く',     rarity:'n', tag:'なんで今' },
+  { id:'n23', emoji:'👀', text:'静かすぎて\n逆に怖い',                  rarity:'n', tag:'絶対何かやってる' },
+  { id:'n24', emoji:'🔁', text:'なぜか同じ質問を\n5回聞いてくる',       rarity:'n', tag:'もう答えたよ' },
+  { id:'n25', emoji:'😇', text:'外ではいい子、\n家で暴れる',            rarity:'n', tag:'外面だけ良い' },
+  { id:'n26', emoji:'⚡', text:'寝る前だけ\n元気になる',                rarity:'n', tag:'覚醒タイム突入' },
+  { id:'n27', emoji:'👨', text:'パパの時だけ\nテンション違う',           rarity:'n', tag:'ちょっと複雑' },
+  { id:'n28', emoji:'👩', text:'ママじゃないと\nダメ発動',              rarity:'n', tag:'パパ頑張れ' },
+  { id:'n29', emoji:'🍪', text:'おやつは\n無限に入る',                  rarity:'n', tag:'胃の構造が違う' },
+  { id:'n30', emoji:'🍚', text:'ご飯は\n3口で終わる',                   rarity:'n', tag:'おやつ食べすぎでしょ' },
+  { id:'n31', emoji:'😒', text:'急に\n「やっぱりこれじゃない」',         rarity:'n', tag:'言うのが遅い' },
+  { id:'n32', emoji:'🚫', text:'さっきまで好きだったのに\n拒否',         rarity:'n', tag:'昨日は食べたのに' },
+  { id:'n33', emoji:'👟', text:'靴履いた瞬間に\n脱ぐ',                  rarity:'n', tag:'出発できない' },
+  { id:'n34', emoji:'🚽', text:'出かける準備したら\nトイレ',             rarity:'n', tag:'毎回これ' },
+  { id:'n35', emoji:'⬆️', text:'抱っこしたら\n降りたがる',              rarity:'n', tag:'抱っこ詐欺' },
+  { id:'n36', emoji:'⬇️', text:'降ろしたら\n抱っこ要求',               rarity:'n', tag:'どっちなの' },
+  { id:'n37', emoji:'📖', text:'なぜか同じ絵本\nエンドレス',            rarity:'n', tag:'親の口が覚えてしまった' },
+  { id:'n38', emoji:'🔄', text:'お気に入りは\n急に変わる',              rarity:'n', tag:'ついていけない' },
+  { id:'n39', emoji:'❓', text:'今じゃない質問\nしてくる',              rarity:'n', tag:'あとで聞いて' },
+  { id:'n40', emoji:'🎯', text:'急に変な\nこだわり発動',                rarity:'n', tag:'理由が謎' },
+  { id:'n41', emoji:'👗', text:'服選びで\n無限ループ',                  rarity:'n', tag:'全部ダメらしい' },
+  { id:'n42', emoji:'💨', text:'急に\n走り出す',                        rarity:'n', tag:'どこ行くの' },
+  { id:'n43', emoji:'📡', text:'呼んでも無視、\n離れると来る',           rarity:'n', tag:'センサー搭載' },
+  { id:'n44', emoji:'😡', text:'なぜか今だけ\nイヤイヤMAX',             rarity:'n', tag:'スイッチどこ' },
+  { id:'n45', emoji:'✊', text:'自分でやる！\nからの出来ない',           rarity:'n', tag:'でも手伝えない' },
+  { id:'n46', emoji:'😠', text:'やってあげると\n怒る',                  rarity:'n', tag:'手伝ったのに' },
+  { id:'n47', emoji:'🧻', text:'ティッシュ\n全部出す',                  rarity:'n', tag:'一瞬の出来事' },
+  { id:'n48', emoji:'📺', text:'リモコン\n奪われる',                    rarity:'n', tag:'返ってこない' },
+  // R（レア）15%
+  { id:'r01', emoji:'🥰', text:'急に\n甘えモード突入',                  rarity:'r', tag:'突然の天使化' },
+  { id:'r02', emoji:'🌙', text:'寝る直前に\n覚醒モード',                rarity:'r', tag:'なんで今元気なの' },
+  { id:'r03', emoji:'😴', text:'寝かしつけながら\n自分が先に寝る',       rarity:'r', tag:'毎晩の事案' },
+  { id:'r04', emoji:'🎭', text:'親の口調を\nそのまま真似してくる',       rarity:'r', tag:'鏡かよ' },
+  { id:'r05', emoji:'🌈', text:'泣きながら\n笑ってる',                  rarity:'r', tag:'感情が追いつかない' },
+  { id:'r06', emoji:'🍭', text:'「あとひとつだけ」\nが永遠に続く',       rarity:'r', tag:'ひとつの概念が違う' },
+  { id:'r07', emoji:'🧩', text:'積み木を積んで\n自分で崩す',            rarity:'r', tag:'その笑顔が全て' },
+  { id:'r08', emoji:'💬', text:'急に深すぎる\n質問をしてくる',          rarity:'r', tag:'哲学者かよ' },
+  // SSR（激レア）5%
+  { id:'s01', emoji:'✨', text:'奇跡的に\nすぐ寝る',   rarity:'ssr', tag:'育児SSR', rarityLabel:'🌟 SSR 奇跡の一枚 🌟' },
+  { id:'s02', emoji:'🍀', text:'最後まで\nご飯食べる', rarity:'ssr', tag:'育児SSR', rarityLabel:'💎 SSR 伝説級 💎' },
+  { id:'s03', emoji:'👑', text:'一回で\n言うこと聞く', rarity:'ssr', tag:'育児SSR', rarityLabel:'👑 SSR 都市伝説 👑' },
+];
+
+// ─── 定数 ────────────────────────────────────────
+const STORAGE_KEY = ‘ikuji_gacha_v2’;
+const TOTAL = ITEMS.length;
+const POOLS = {
+n:   ITEMS.filter(i => i.rarity === ‘n’),
+r:   ITEMS.filter(i => i.rarity === ‘r’),
+ssr: ITEMS.filter(i => i.rarity === ‘ssr’),
+};
+
+// ─── localStorage安全ラッパー ─────────────────────
+function storageGet(key) {
+try { return localStorage.getItem(key); } catch { return null; }
+}
+function storageSet(key, val) {
+try { localStorage.setItem(key, val); } catch {}
+}
+
+// ─── 状態 ────────────────────────────────────────
+let count = 0;
+let collected = new Set();
+
+function loadCollection() {
+const raw = storageGet(STORAGE_KEY);
+try { return raw ? new Set(JSON.parse(raw)) : new Set(); } catch { return new Set(); }
+}
+function saveCollection() {
+storageSet(STORAGE_KEY, JSON.stringify([…collected]));
+}
+
+// ─── コレクションUI ──────────────────────────────
+function updateCollUI() {
+const got = collected.size;
+const remain = TOTAL - got;
+document.getElementById(‘collGot’).textContent = got;
+document.getElementById(‘collRemain’).textContent =
+remain > 0 ? ‘あと’ + remain + ‘種’ : ‘全部制覇！🎉’;
+document.getElementById(‘progressBar’).style.width = (got / TOTAL * 100) + ‘%’;
+}
+
+// ─── ガチャ ──────────────────────────────────────
+function drawGacha() {
+const r = Math.random();
+const rarity = r < 0.05 ? ‘ssr’ : r < 0.20 ? ‘r’ : ‘n’;
+const pool = POOLS[rarity];
+const item = pool[Math.floor(Math.random() * pool.length)];
+
+const isNew = !collected.has(item.id);
+if (isNew) { collected.add(item.id); saveCollection(); }
+
+renderResult(item, isNew);
+updateCollUI();
+
+count++;
+const el = document.getElementById(‘countNum’);
+el.textContent = count;
+el.classList.remove(‘bump’);
+void el.offsetWidth;
+el.classList.add(‘bump’);
+
+const btn = document.getElementById(‘gachaBtn’);
+btn.classList.add(‘spinning’);
+setTimeout(function() { btn.classList.remove(‘spinning’); }, 400);
+}
+
+// ─── 描画 ────────────────────────────────────────
+function renderResult(item, isNew) {
+const area     = document.getElementById(‘resultArea’);
+const emojiEl  = document.getElementById(‘resultEmoji’);
+const textEl   = document.getElementById(‘resultText’);
+const tagEl    = document.getElementById(‘resultTag’);
+const badgeEl  = document.getElementById(‘rarityBadge’);
+const newBadge = document.getElementById(‘newBadge’);
+
+area.className = ‘result-area’;
+badgeEl.className = ‘rarity-badge’;
+tagEl.className = ‘result-tag’;
+newBadge.className = ‘new-badge’;
+void area.offsetWidth;
+
+emojiEl.textContent = item.emoji;
+textEl.className = ‘result-text’ + (item.rarity === ‘ssr’ ? ’ ssr-text’ : ‘’);
+textEl.innerHTML = item.text.replace(/\n/g, ‘<br>’);
+tagEl.textContent = item.tag;
+
+if (item.rarity !== ‘n’) area.classList.add(‘card-’ + item.rarity);
+area.classList.add(‘anim-’ + item.rarity);
+
+badgeEl.classList.add(‘badge-’ + item.rarity);
+badgeEl.textContent = item.rarity === ‘ssr’ ? item.rarityLabel
+: item.rarity === ‘r’   ? ‘✦ R レア ✦’
+: ‘N ふつう’;
+tagEl.classList.add(‘tag-’ + item.rarity);
+
+setTimeout(function() {
+badgeEl.classList.add(‘visible’);
+tagEl.classList.add(‘visible’);
+}, 80);
+
+if (isNew) {
+setTimeout(function() { newBadge.classList.add(‘visible’); }, 120);
+}
+}
+
+// ─── リセット ────────────────────────────────────
+function resetCollection() {
+if (!confirm(‘コレクションをリセットしますか？’)) return;
+collected.clear();
+saveCollection();
+updateCollUI();
+}
+
+// ─── 起動 ────────────────────────────────────────
+document.addEventListener(‘DOMContentLoaded’, function() {
+collected = loadCollection();
+document.getElementById(‘collTotal’).textContent = TOTAL;
+updateCollUI();
+document.getElementById(‘gachaBtn’).addEventListener(‘click’, drawGacha);
+document.getElementById(‘resetBtn’).addEventListener(‘click’, resetCollection);
+});
+</script>
+
+</body>
+</html>
