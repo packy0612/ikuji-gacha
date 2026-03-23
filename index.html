@@ -308,10 +308,8 @@ transition:opacity .15s;
   </div>
 
 </div>
-<script>
-// ─── データ ───────────────────────────────────────
+<script type="module">
 const ITEMS = [
-  // N（通常）80%
   { id:'n01', emoji:'💩', text:'出かける直前に\nうんこ',                rarity:'n', tag:'あるある度 MAX' },
   { id:'n02', emoji:'😭', text:'抱っこ→降ろした\n瞬間泣く',            rarity:'n', tag:'わかりみ深すぎる' },
   { id:'n03', emoji:'👁️', text:'寝たと思ったら\n復活',                  rarity:'n', tag:'これもう呪いでしょ' },
@@ -360,7 +358,6 @@ const ITEMS = [
   { id:'n46', emoji:'😠', text:'やってあげると\n怒る',                  rarity:'n', tag:'手伝ったのに' },
   { id:'n47', emoji:'🧻', text:'ティッシュ\n全部出す',                  rarity:'n', tag:'一瞬の出来事' },
   { id:'n48', emoji:'📺', text:'リモコン\n奪われる',                    rarity:'n', tag:'返ってこない' },
-  // R（レア）15%
   { id:'r01', emoji:'🥰', text:'急に\n甘えモード突入',                  rarity:'r', tag:'突然の天使化' },
   { id:'r02', emoji:'🌙', text:'寝る直前に\n覚醒モード',                rarity:'r', tag:'なんで今元気なの' },
   { id:'r03', emoji:'😴', text:'寝かしつけながら\n自分が先に寝る',       rarity:'r', tag:'毎晩の事案' },
@@ -369,84 +366,77 @@ const ITEMS = [
   { id:'r06', emoji:'🍭', text:'「あとひとつだけ」\nが永遠に続く',       rarity:'r', tag:'ひとつの概念が違う' },
   { id:'r07', emoji:'🧩', text:'積み木を積んで\n自分で崩す',            rarity:'r', tag:'その笑顔が全て' },
   { id:'r08', emoji:'💬', text:'急に深すぎる\n質問をしてくる',          rarity:'r', tag:'哲学者かよ' },
-  // SSR（激レア）5%
   { id:'s01', emoji:'✨', text:'奇跡的に\nすぐ寝る',   rarity:'ssr', tag:'育児SSR', rarityLabel:'🌟 SSR 奇跡の一枚 🌟' },
   { id:'s02', emoji:'🍀', text:'最後まで\nご飯食べる', rarity:'ssr', tag:'育児SSR', rarityLabel:'💎 SSR 伝説級 💎' },
   { id:'s03', emoji:'👑', text:'一回で\n言うこと聞く', rarity:'ssr', tag:'育児SSR', rarityLabel:'👑 SSR 都市伝説 👑' },
 ];
 
-// ─── 定数 ────────────────────────────────────────
 const STORAGE_KEY = ‘ikuji_gacha_v2’;
 const TOTAL = ITEMS.length;
 const POOLS = {
-n:   ITEMS.filter(i => i.rarity === ‘n’),
-r:   ITEMS.filter(i => i.rarity === ‘r’),
-ssr: ITEMS.filter(i => i.rarity === ‘ssr’),
+n:   ITEMS.filter(function(i){ return i.rarity === ‘n’; }),
+r:   ITEMS.filter(function(i){ return i.rarity === ‘r’; }),
+ssr: ITEMS.filter(function(i){ return i.rarity === ‘ssr’; }),
 };
 
-// ─── localStorage安全ラッパー ─────────────────────
 function storageGet(key) {
-try { return localStorage.getItem(key); } catch { return null; }
+try { return localStorage.getItem(key); } catch(e) { return null; }
 }
 function storageSet(key, val) {
-try { localStorage.setItem(key, val); } catch {}
+try { localStorage.setItem(key, val); } catch(e) {}
 }
 
-// ─── 状態 ────────────────────────────────────────
-let count = 0;
-let collected = new Set();
+var count = 0;
+var collected = new Set();
 
 function loadCollection() {
-const raw = storageGet(STORAGE_KEY);
-try { return raw ? new Set(JSON.parse(raw)) : new Set(); } catch { return new Set(); }
+var raw = storageGet(STORAGE_KEY);
+try { return raw ? new Set(JSON.parse(raw)) : new Set(); } catch(e) { return new Set(); }
 }
 function saveCollection() {
-storageSet(STORAGE_KEY, JSON.stringify([…collected]));
+storageSet(STORAGE_KEY, JSON.stringify(Array.from(collected)));
 }
 
-// ─── コレクションUI ──────────────────────────────
 function updateCollUI() {
-const got = collected.size;
-const remain = TOTAL - got;
+var got = collected.size;
+var remain = TOTAL - got;
 document.getElementById(‘collGot’).textContent = got;
-document.getElementById(‘collRemain’).textContent =
-remain > 0 ? ‘あと’ + remain + ‘種’ : ‘全部制覇！🎉’;
+document.getElementById(‘collTotal’).textContent = TOTAL;
+document.getElementById(‘collRemain’).textContent = remain > 0 ? ‘あと’ + remain + ‘種’ : ‘全部制覇！🎉’;
 document.getElementById(‘progressBar’).style.width = (got / TOTAL * 100) + ‘%’;
 }
 
-// ─── ガチャ ──────────────────────────────────────
 function drawGacha() {
-const r = Math.random();
-const rarity = r < 0.05 ? ‘ssr’ : r < 0.20 ? ‘r’ : ‘n’;
-const pool = POOLS[rarity];
-const item = pool[Math.floor(Math.random() * pool.length)];
+var r = Math.random();
+var rarity = r < 0.05 ? ‘ssr’ : r < 0.20 ? ‘r’ : ‘n’;
+var pool = POOLS[rarity];
+var item = pool[Math.floor(Math.random() * pool.length)];
 
-const isNew = !collected.has(item.id);
+var isNew = !collected.has(item.id);
 if (isNew) { collected.add(item.id); saveCollection(); }
 
 renderResult(item, isNew);
 updateCollUI();
 
 count++;
-const el = document.getElementById(‘countNum’);
+var el = document.getElementById(‘countNum’);
 el.textContent = count;
 el.classList.remove(‘bump’);
 void el.offsetWidth;
 el.classList.add(‘bump’);
 
-const btn = document.getElementById(‘gachaBtn’);
+var btn = document.getElementById(‘gachaBtn’);
 btn.classList.add(‘spinning’);
 setTimeout(function() { btn.classList.remove(‘spinning’); }, 400);
 }
 
-// ─── 描画 ────────────────────────────────────────
 function renderResult(item, isNew) {
-const area     = document.getElementById(‘resultArea’);
-const emojiEl  = document.getElementById(‘resultEmoji’);
-const textEl   = document.getElementById(‘resultText’);
-const tagEl    = document.getElementById(‘resultTag’);
-const badgeEl  = document.getElementById(‘rarityBadge’);
-const newBadge = document.getElementById(‘newBadge’);
+var area     = document.getElementById(‘resultArea’);
+var emojiEl  = document.getElementById(‘resultEmoji’);
+var textEl   = document.getElementById(‘resultText’);
+var tagEl    = document.getElementById(‘resultTag’);
+var badgeEl  = document.getElementById(‘rarityBadge’);
+var newBadge = document.getElementById(‘newBadge’);
 
 area.className = ‘result-area’;
 badgeEl.className = ‘rarity-badge’;
@@ -478,7 +468,6 @@ setTimeout(function() { newBadge.classList.add(‘visible’); }, 120);
 }
 }
 
-// ─── リセット ────────────────────────────────────
 function resetCollection() {
 if (!confirm(‘コレクションをリセットしますか？’)) return;
 collected.clear();
@@ -486,15 +475,13 @@ saveCollection();
 updateCollUI();
 }
 
-// ─── 起動 ────────────────────────────────────────
 document.addEventListener(‘DOMContentLoaded’, function() {
 collected = loadCollection();
-document.getElementById(‘collTotal’).textContent = TOTAL;
 updateCollUI();
 document.getElementById(‘gachaBtn’).addEventListener(‘click’, drawGacha);
 document.getElementById(‘resetBtn’).addEventListener(‘click’, resetCollection);
 });
-</script>
 
+</script>
 </body>
 </html>
