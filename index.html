@@ -308,7 +308,7 @@ transition:opacity .15s;
   </div>
 
 </div>
-<script type="module">
+<script>
 const ITEMS = [
   { id:'n01', emoji:'💩', text:'出かける直前に\nうんこ',                rarity:'n', tag:'あるある度 MAX' },
   { id:'n02', emoji:'😭', text:'抱っこ→降ろした\n瞬間泣く',            rarity:'n', tag:'わかりみ深すぎる' },
@@ -475,12 +475,14 @@ saveCollection();
 updateCollUI();
 }
 
-document.addEventListener(‘DOMContentLoaded’, function() {
+window.onload = function() {
 collected = loadCollection();
 updateCollUI();
-document.getElementById(‘gachaBtn’).addEventListener(‘click’, drawGacha);
-document.getElementById(‘resetBtn’).addEventListener(‘click’, resetCollection);
-});
+var gb = document.getElementById(‘gachaBtn’);
+var rb = document.getElementById(‘resetBtn’);
+if (gb) gb.addEventListener(‘click’, drawGacha);
+if (rb) rb.addEventListener(‘click’, resetCollection);
+};
 
 </script>
 </body>
